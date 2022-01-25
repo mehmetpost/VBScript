@@ -1,0 +1,68 @@
+Sub SaveAttachments()
+'************************************************************
+'   USAGE:  SAVES ATTACHMENTS FROM INBOX TO A DIRECTORY
+
+'   PARAMETER: PATHNAME (OPTIONAL): WHERE TO SAVE THE FILES.
+'   IF NOT PROVIDED, THE SYSTEM'S TEMPORARY DIRECTORY IS USED
+
+'   REQUIRES: OUTLOOK TO BE INSTALLED ON RUNNING MACHINE AND
+'   A REFERENCE TO THE OUTLOOK OBJECT LIBRARY
+
+'   RETURNS:  TRUE IF SUCCESSFUL, FALSE OTHERWISE
+'*************************************************************
+
+
+Dim oOutlook As Outlook.Application
+Dim oNS As Outlook.NameSpace
+Dim oFldr As Outlook.MAPIFolder
+Dim oMessage As Object
+Dim omsg As Outlook.MailItem
+
+Dim sPathName As String
+sPathName = "C:\temp\attachments"
+
+Dim ssubject As String
+ssubject = "RE: ACCOUNT REQUEST"
+
+Dim oAttachment As Outlook.Attachment
+Dim iCtr As Integer
+Dim iAttachCnt As Integer
+
+On Error GoTo ErrHandler
+
+
+If Right(sPathName, 1) <> "\" Then sPathName = sPathName & "\"
+If Dir(sPathName, vbDirectory) = "" Then Exit Sub
+
+Set oOutlook = New Outlook.Application
+Set oNS = oOutlook.GetNamespace("MAPI")
+'Set oFldr = oNS.GetDefaultFolder(olFolderInbox)
+Set oFldr = oNS.Folders.Item("Personal Folders").Folders.Item("Inbox").Folders.Item("Projeler").Folders.Item("Barkod")
+'omsg = oFldr.Items.GetFirst
+
+For Each omsg In oFldr.Items
+If omsg.Subject Like "*ACCOUNT REQUEST*" Or True Then
+'****
+With omsg.Attachments
+    iAttachCnt = .Count
+    If iAttachCnt > 0 Then
+        For iCtr = 1 To iAttachCnt
+            .Item(iCtr).SaveAsFile sPathName _
+                 & .Item(iCtr).FileName & OriginalDate
+        Next iCtr
+    
+    End If
+End With
+'****
+
+End If
+DoEvents
+
+Next omsg
+
+
+ErrHandler:
+Set omsg = Nothing
+Set oFldr = Nothing
+Set oNS = Nothing
+Set oOutlook = Nothing
