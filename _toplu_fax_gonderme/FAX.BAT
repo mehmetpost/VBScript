@@ -1,0 +1,1 @@
+type %1>\\Tding13\HPFAX
